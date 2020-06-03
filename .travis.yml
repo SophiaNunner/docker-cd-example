@@ -1,0 +1,25 @@
+os: linux
+
+language: go
+
+go:
+    - 1.14.x
+    
+services:
+    - docker
+  
+script:
+    # Test the code
+    - go test -v ./...
+    - CGO_ENABLED=0 go build -o demo
+
+    # login to docker hub
+    - echo "$REGISTRY_PASSWORD" | docker login --username $REGISTRY_USER --password-stdin
+    # build docker image "demo:latest" based on Dockerfile on my dockerhub account
+    - docker build -f Dockerfile -t sophianunner/demo:latest ./
+    # Add Docker tag to the image (replace "latest" tag). The tag has to be the Git commit SHA of this build:
+    - GIT_SHA="$(git rev-parse --short HEAD)"
+    - docker tag sophianunner/demo:latest sophianunner/demo:$GIT_SHA
+    # push the image to dockerhub
+    - docker push sophianunner/demo:latest
+    - docker push sophianunner/demo:$GIT_SHA
