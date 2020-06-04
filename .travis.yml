@@ -11,6 +11,10 @@ services:
 script:
     # Test the code
     - go test -v ./...
+    # entirely disable cgo. In that case, instead of using system libraries, 
+    # Go will use its own built-in reimplementations of these libraries. 
+    # For instance, instead of using the system’s DNS resolver, it will use its own resolver. 
+    # The resulting binary will be static. To disable cgo, all we have to do is set the environment variable CGO_ENABLED=0.
     - CGO_ENABLED=0 go build -o demo
 
     # login to docker hub
